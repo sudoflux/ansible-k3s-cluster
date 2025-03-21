@@ -38,11 +38,11 @@ This playbook:
     Only enables BGP if the user can configure their router.
     Allows users to toggle BGP on/off in values.yml.
 
-Project Roadmap
+## Project Roadmap
 
-Basic K3s install (masters + workers)
-Default Cilium setup
-Support for static IP configuration
-Improve dynamic inventory generation
-Add node labels & taints for customization
-BGP automation for multi-VLAN setups
+- [x] Basic K3s install (masters + workers)
+- [x] Default Cilium setup
+- [ ] Support for static IP configuration
+- [ ] Improve dynamic inventory generation
+- [ ] Add node labels & taints for customization
+- [ ] BGP automation for multi-VLAN setups
