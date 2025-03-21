@@ -30,7 +30,7 @@
        ansible-playbook -i inventory/generate_inventory.yml site.yml
 Why is BGP Optional?
 
-Not every user has a router that supports BGP/FRR. Some users may only need basic pod networking, while others want multi-VLAN or external routing.
+Not every user has a router that supports BGP/FRR.
 
 This playbook:
 
