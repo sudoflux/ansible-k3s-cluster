@@ -1,0 +1,14 @@
+- name: Validate storage class configuration
+  fail:
+    msg: "ERROR: More than one default storage class is set! Only one can be true."
+  when: >
+    (storage_classes.longhorn.default | default(false) | bool) +
+    (storage_classes.nfs.default | default(false) | bool) +
+    (storage_classes.local-path.default | default(false) | bool) > 1
+
+- name: Ensure NFS server is defined if NFS is enabled
+  fail:
+    msg: "ERROR: NFS is enabled but no server or path is set."
+  when: >
+    storage_classes.nfs.enabled | default(false) | bool and
+    (storage_classes.nfs.server is not defined or storage_classes.nfs.path is not defined)

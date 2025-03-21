@@ -1,0 +1,32 @@
+- name: Import storage validation
+  include_tasks: validate.yml
+
+- name: Deploy Longhorn if enabled
+  shell: |
+    helm repo add longhorn https://charts.longhorn.io
+    helm repo update
+    helm install longhorn longhorn/longhorn \
+      --namespace longhorn-system \
+      --create-namespace \
+      --set defaultSettings.defaultDataPath="{{ storage_classes.longhorn.default_path }}"
+  when: storage_classes.longhorn.enabled | default(false) | bool
+
+- name: Deploy NFS storage class if enabled
+  template:
+    src: nfs-storage-class.yaml.j2
+    dest: /tmp/nfs-storage-class.yaml
+  when: storage_classes.nfs.enabled | default(false) | bool
+
+- name: Apply NFS Storage Class
+  shell: kubectl apply -f /tmp/nfs-storage-class.yaml
+  when: storage_classes.nfs.enabled | default(false) | bool
+
+- name: Set default storage class
+  shell: kubectl patch storageclass {{ item }} -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+  loop: >-
+    {{
+      (storage_classes.longhorn.default | ternary('longhorn', '')) +
+      (storage_classes.nfs.default | ternary('nfs', '')) +
+      (storage_classes.local-path.default | ternary('local-path', ''))
+    }}
+  when: item != ""
