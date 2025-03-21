@@ -19,6 +19,14 @@ api_server_ip: ""
 # - Define a custom pool of IPs for LoadBalancer services if using BGP.
 # - If empty, Cilium will dynamically allocate IPs.
 lb_ip_pool: 
-  # - start: "192.168.1.240"
-  #   stop: "192.168.1.249"
+  # - start: "192.168.10.240"
+  #   stop: "192.168.10.249"
 
+# Ingress Controller Configuration
+ingress_controller:
+  enabled: true  # Set to false to disable IngressController
+  default: true  # Set this as the default ingress controller
+  loadbalancerMode: shared  # Shared LoadBalancer for all Ingress resources
+  service:
+    annotations:
+      io.cilium/lb-ipam-ips: "192.168.10.240"  # Assign IP from LoadBalancer pool
