@@ -1,30 +1,56 @@
 ---
-- name: Base configuration
+- name: Generate Dynamic Inventory
+  hosts: localhost
+  tasks:
+    - name: Render inventory from template
+      template:
+        src: inventory/generate_inventory.yml
+        dest: inventory/generated_inventory.yml
+
+- name: Deploy Base Configuration
   hosts: all
-  become: yes
+  become: true
   roles:
-    - base
+    - role: base
 
-- name: Configure K3s master nodes
+- name: Deploy K3s Cluster
   hosts: masters
-  become: yes
+  become: true
   roles:
-    - k3s_master
+    - role: k3s_master
+  when: inventory_hostname in groups['masters']
 
-- name: Configure K3s worker nodes
+- name: Deploy K3s Worker Nodes
   hosts: workers
-  become: yes
+  become: true
   roles:
-    - k3s_worker
+    - role: k3s_worker
+  when: inventory_hostname in groups['workers']
 
-- name: Install Cilium (if enabled)
+- name: Deploy Cilium Networking
   hosts: masters
-  become: yes
+  become: true
   roles:
-    - { role: cilium, when: cilium_enabled | default(false) | bool }
+    - role: cilium
+  when: cilium_enabled | default(false) | bool
 
-- name: Configure Cilium BGP (if enabled)
+- name: Deploy Cilium BGP (if enabled)
   hosts: masters
-  become: yes
+  become: true
   roles:
-    - { role: cilium_bgp, when: cilium_bgp_enabled | default(false) | bool }
+    - role: cilium_bgp
+  when: cilium_bgp_enabled | default(false) | bool
+
+- name: Deploy Storage
+  hosts: masters
+  become: true
+  roles:
+    - role: storage
+  when: storage_classes is defined
+
+- name: Deploy ARR Media Stack (if enabled)
+  hosts: masters
+  become: true
+  roles:
+    - role: media_stack
+  when: deploy_media_stack | default(false) | bool

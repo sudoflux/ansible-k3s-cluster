@@ -14,7 +14,19 @@
 
 ---
 
-## **📌 How to Deploy**
+## **📌 Prerequisites**
+Before proceeding, ensure you have the following:
+- A working **Ansible** environment.
+- SSH access to all cluster nodes.
+- Properly configured `cluster_config.yml` and `values.yml`.
+
+Test SSH connectivity:
+```shell
+ansible all -m ping -i inventory/generated_inventory.yml
+```
+---
+
+## **📉 How to Deploy**
 
 ### **1️⃣ Edit Your Cluster Configuration (`cluster_config.yml`)**
 **Before running anything, you must define your cluster nodes in `cluster_config.yml`.**  
@@ -38,7 +50,7 @@ workers:
 
 ### **2️⃣ Customize General Settings (`values.yml`)**
 
-Modify `values.yml` to configure SSH access, the K3s version, networking settings, and optional features.
+Modify `values.yml` to configure SSH access, the K3s version, networking settings, storage, and optional services.
 
 #### Example:
 ```yaml
@@ -63,23 +75,17 @@ deploy_sabnzbd: false
 
 ---
 
-### **3️⃣ Generate the Dynamic Inventory**
+### **3️⃣ Deploy the Cluster**
 
-Since the inventory is dynamically created from `cluster_config.yml`, you must render the inventory template before deployment.
-
-Run the following command to generate `inventory/generated_inventory.yml`:
+This playbook automates **inventory generation** and **cluster deployment** in one step:
 ```shell
-ansible-playbook render_inventory.yml -e "@cluster_config.yml"
+ansible-playbook site.yml
 ```
-This step converts your cluster configuration into a structured Ansible inventory.
 
----
-
-### **4️⃣ Deploy the Cluster**
-
-Once the inventory is generated, run the main playbook to set up your K3s cluster:
+To deploy specific components:
 ```shell
-ansible-playbook -i inventory/generated_inventory.yml site.yml
+ansible-playbook site.yml --tags storage   # Deploys storage setup
+ansible-playbook site.yml --tags media     # Deploys media stack
 ```
 
 ---
@@ -94,7 +100,7 @@ This playbook:
 
 ---
 
-## 📌 Storage Configuration
+## **💾 Storage Configuration**
 
 You can mix multiple storage backends (`Longhorn`, `NFS`, `Local-Path`).  
 Define storage classes in `values.yml`:
@@ -122,21 +128,21 @@ storage_classes:
     - NFS requires a server IP and path if enabled.
     - Longhorn auto-installs if enabled.
 
-💥 Deploy Storage Before Cluster:
+To deploy storage **before** the cluster:
 ```shell
-ansible-playbook -i inventory/generated_inventory.yml site.yml --tags storage
+ansible-playbook site.yml --tags storage
 ```
 
 ---
 
-## 📌 ARR Media Stack Configuration
+## **🌀 ARR Media Stack Configuration**
 
 If enabled, this will install Plex, Radarr, Sonarr, and other media services.  
 Ensure the correct settings in `values.yml` before deployment.
 
 🚀 **To deploy the media stack:**
 ```shell
-ansible-playbook -i inventory/generated_inventory.yml site.yml --tags media
+ansible-playbook site.yml --tags media
 ```
 
 ---
@@ -148,11 +154,11 @@ ansible-playbook -i inventory/generated_inventory.yml site.yml --tags media
 ✔ **Fails gracefully if configurations are incorrect**  
 ✔ **Clear README instructions**  
 
-🚀 **Good to go? Or any extra features we need?**
+🚀 **Ready to deploy? Let’s go!**
 
 ---
 
-## **📌 Project Roadmap**
+## **🔍 Project Roadmap**
 
 ### ✅ Completed
 - [x] **Basic K3s install (masters + workers)**
@@ -161,6 +167,7 @@ ansible-playbook -i inventory/generated_inventory.yml site.yml --tags media
 - [x] **Cilium-based LoadBalancer & Ingress setup**
 - [x] **ARR Media Stack deployment toggle**
 - [x] **Storage backend configuration (Longhorn, NFS, Local)**
+- [x] **Integrated inventory generation in `site.yml`**
 
 ### 🛠️ In Progress / Planned
 - [ ] **Support for static IP configuration**
