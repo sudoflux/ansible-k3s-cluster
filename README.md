@@ -20,9 +20,29 @@
      - hostname: worker1
        ip: 192.168.30.21
 2. Customize general settings in values.yml:
+    ```yaml
        ssh_user: josh
        k3s_version: v1.29.1+k3s1
        cilium_enabled: true
        cilium_bgp_enabled: false
 3. Run the playbook to deploy:
-    ```ansible-playbook -i inventory/generate_inventory.yml site.yml```
+    ```shell
+       ansible-playbook -i inventory/generate_inventory.yml site.yml
+Why is BGP Optional?
+
+Not every user has a router that supports BGP/FRR. Some users may only need basic pod networking, while others want multi-VLAN or external routing.
+
+This playbook:
+
+    Always installs Cilium for pod networking.
+    Only enables BGP if the user can configure their router.
+    Allows users to toggle BGP on/off in values.yml.
+
+Project Roadmap
+
+Basic K3s install (masters + workers)
+Default Cilium setup
+Support for static IP configuration
+Improve dynamic inventory generation
+Add node labels & taints for customization
+BGP automation for multi-VLAN setups
