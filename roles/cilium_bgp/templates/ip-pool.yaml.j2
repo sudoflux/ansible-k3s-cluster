@@ -1,0 +1,10 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "custom-ip-pool"
+spec:
+  blocks:
+  {% for block in lb_ip_pool %}
+    - start: "{{ block.start }}"
+      stop: "{{ block.stop }}"
+  {% endfor %}

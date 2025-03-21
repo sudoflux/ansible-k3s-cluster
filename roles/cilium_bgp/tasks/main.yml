@@ -1,0 +1,36 @@
+---
+- name: Verify that Cilium BGP is enabled
+  assert:
+    that:
+      - cilium_bgp_enabled | default(false) | bool
+    msg: "Cilium BGP is not enabled. Set 'cilium_bgp_enabled: true' in values.yml to enable."
+
+- name: Enable Cilium BGP Control Plane via Helm Upgrade
+  shell: |
+    helm upgrade cilium cilium/cilium --version 1.17.2 \
+      --namespace kube-system \
+      --reuse-values \
+      --set bgpControlPlane.enabled=true
+  args:
+    executable: /bin/bash
+  when: cilium_bgp_enabled | default(false) | bool
+
+- name: Restart Cilium DaemonSet
+  shell: kubectl -n kube-system rollout restart ds/cilium
+  args:
+    executable: /bin/bash
+  when: cilium_bgp_enabled | default(false) | bool
+
+- name: Check if LoadBalancer IP Pool is defined
+  set_fact:
+    lb_pool_defined: "{{ lb_ip_pool is defined and lb_ip_pool | length > 0 }}"
+
+- name: Render LoadBalancer IP Pool YAML (if defined)
+  template:
+    src: "ip-pool.yaml.j2"
+    dest: "/tmp/ip-pool.yaml"
+  when: lb_pool_defined
+
+- name: Apply LoadBalancer IP Pool (if defined)
+  shell: kubectl apply -f /tmp/ip-pool.yaml
+  when: lb_pool_defined
