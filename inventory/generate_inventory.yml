@@ -1,0 +1,14 @@
+all:
+  children:
+    masters:
+      hosts:
+{% for master in masters %} 
+        {{ master.hostname }}:
+          ansible_host: {{ master.ip }}
+{% endfor %}
+    workers:
+      hosts:
+{% for worker in workers %} 
+        {{ worker.hostname }}:
+          ansible_host: {{ worker.ip }}
+{% endfor %}

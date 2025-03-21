@@ -1,0 +1,11 @@
+masters:
+  - hostname: master1
+    ip: 192.168.10.30
+
+workers:
+  - hostname: worker1
+    ip: 192.168.10.21
+  - hostname: worker2
+    ip: 192.168.10.22
+  - hostname: worker3
+    ip: 192.168.10.23

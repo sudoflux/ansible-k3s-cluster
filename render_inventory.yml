@@ -1,0 +1,9 @@
+- name: Render inventory template
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Generate inventory file from template
+      ansible.builtin.template:
+        src: inventory/generate_inventory.yml
+        dest: inventory/generated_inventory.yml
+        mode: '0644'
