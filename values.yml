@@ -1,0 +1,14 @@
+# User configuration for K3s deployment
+
+# SSH settings
+ssh_user: "your-ssh-user"
+
+# K3s settings
+k3s_version: "v1.29.1+k3s1"
+
+# Cilium settings
+cilium_enabled: true  # Set to false to disable Cilium
+cilium_bgp_enabled: false  # Set to true to enable BGP if supported
+
+# Additional networking options (for future use)
+api_server_ip: ""  # Set manually if using an external load balancer (this will be needed under the conditions - multiple master nodes with cilium enabled)

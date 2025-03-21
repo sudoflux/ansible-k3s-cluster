@@ -27,7 +27,9 @@
 - name: Determine API server IP
   set_fact:
     api_server_ip: >-
-      {% if groups['masters'] | length > 1 %}
+      {% if api_server_ip is defined and api_server_ip | length > 0 %}
+        {{ api_server_ip }}
+      {% elif groups['masters'] | length > 1 %}
         {{ hostvars[groups['masters'][0]]['ansible_host'] }}
       {% else %}
         {{ hostvars['master1']['ansible_host'] }}
