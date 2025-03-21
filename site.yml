@@ -1,0 +1,45 @@
+- name: Setup K3s cluster
+  hosts: all
+  become: true
+  vars_files:
+    - values.yml
+    - cluster_config.yml
+  roles:
+    - base  # Set up hostname, SSH, timezone
+
+- name: Install K3s on masters
+  hosts: masters
+  become: true
+  vars_files:
+    - values.yml
+    - cluster_config.yml
+  roles:
+    - k3s_master
+
+- name: Install K3s on workers
+  hosts: workers
+  become: true
+  vars_files:
+    - values.yml
+    - cluster_config.yml
+  roles:
+    - k3s_worker
+
+- name: Install Cilium (default networking)
+  hosts: masters[0]  # Install Cilium from the first master node
+  become: true
+  vars_files:
+    - values.yml
+    - cluster_config.yml
+  roles:
+    - cilium
+
+- name: Configure Cilium BGP (if enabled)
+  hosts: masters[0]
+  become: true
+  vars_files:
+    - values.yml
+    - cluster_config.yml
+  when: cilium_bgp_enabled | default(false)
+  roles:
+    - cilium_bgp
