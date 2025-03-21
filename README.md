@@ -18,7 +18,7 @@
 **Before running anything, you must define your cluster nodes in `cluster_config.yml`.**  
 This file specifies your **master and worker nodes** with their respective hostnames and IPs.
 
-Example:
+#### Example:
 ```yaml
 masters:
   - hostname: master1
@@ -30,43 +30,67 @@ workers:
     ip: 192.168.30.22
   - hostname: worker3
     ip: 192.168.30.23
-2️⃣ Customize General Settings (values.yml)
+```
 
-Modify values.yml to configure SSH access, the K3s version, and networking settings.
+---
 
-Example:
+### **2️⃣ Customize General Settings (`values.yml`)**
+
+Modify `values.yml` to configure SSH access, the K3s version, and networking settings.
+
+#### Example:
 ```yaml
-    ssh_user: josh
-    k3s_version: v1.29.1+k3s1
-    cilium_enabled: true
-    cilium_bgp_enabled: false
-3️⃣ Generate the Dynamic Inventory
+ssh_user: josh
+k3s_version: v1.29.1+k3s1
+cilium_enabled: true
+cilium_bgp_enabled: false
+```
 
-Since the inventory is dynamically created from cluster_config.yml, you must render the inventory template before deployment.
+---
 
-Run the following command to generate inventory/generated_inventory.yml:
+### **3️⃣ Generate the Dynamic Inventory**
+
+Since the inventory is dynamically created from `cluster_config.yml`, you must render the inventory template before deployment.
+
+Run the following command to generate `inventory/generated_inventory.yml`:
 ```shell
-    ansible-playbook render_inventory.yml -e "@cluster_config.yml"
-
+ansible-playbook render_inventory.yml -e "@cluster_config.yml"
+```
 This step converts your cluster configuration into a structured Ansible inventory.
-4️⃣ Deploy the Cluster
+
+---
+
+### **4️⃣ Deploy the Cluster**
 
 Once the inventory is generated, run the main playbook to set up your K3s cluster:
 ```shell
-    ansible-playbook -i inventory/generated_inventory.yml site.yml
-🌐 Why is BGP Optional?
+ansible-playbook -i inventory/generated_inventory.yml site.yml
+```
 
-Not every user has a router that supports BGP/FRR.
+---
+
+## **🌐 Why is BGP Optional?**
+Not every user has a router that supports BGP/FRR.  
 This playbook:
 
-    Always installs Cilium for pod networking.
-    Only enables BGP if the user can configure their router.
-    Allows users to toggle BGP on/off in values.yml.
-## Project Roadmap
+- Always installs **Cilium** for pod networking.
+- Only enables **BGP** if the user can configure their router.
+- Allows users to toggle **BGP on/off** in `values.yml`.
 
-- [x] Basic K3s install (masters + workers)
-- [x] Default Cilium setup
-- [ ] Support for static IP configuration
-- [ ] Improve dynamic inventory generation
-- [ ] Add node labels & taints for customization
-- [ ] BGP automation for multi-VLAN setups
+---
+
+## **📌 Project Roadmap**
+
+### ✅ Completed
+- [x] **Basic K3s install (masters + workers)**
+- [x] **Default Cilium setup**
+- [x] **Dynamic inventory generation with Jinja2**
+
+### 🚧 In Progress / Planned
+- [ ] **Support for static IP configuration**
+- [ ] **Improve inventory generation error handling**
+- [ ] **Add node labels & taints for customization**
+- [ ] **BGP automation for multi-VLAN setups**
+- [ ] **Automate SSH key distribution for Ansible**
+- [ ] **Ensure hostname, SSH, and timezone are configured properly**
+
