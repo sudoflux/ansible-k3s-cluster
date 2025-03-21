@@ -14,3 +14,11 @@ cilium_bgp_enabled: false  # Set to true to enable BGP if supported
 # - If using multiple masters, set this to an external Load Balancer IP.
 # - If empty, the first master node's IP will be used.
 api_server_ip: ""
+
+# LoadBalancer IP Pool (Optional)
+# - Define a custom pool of IPs for LoadBalancer services if using BGP.
+# - If empty, Cilium will dynamically allocate IPs.
+lb_ip_pool: 
+  # - start: "192.168.1.240"
+  #   stop: "192.168.1.249"
+
