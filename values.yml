@@ -15,6 +15,15 @@ cilium_bgp_enabled: false  # Set to true to enable BGP if supported
 # - If empty, the first master node's IP will be used.
 api_server_ip: ""
 
+# BGP Settings (Only applies if BGP is enabled)
+bgp_config:
+  enabled: false  # Set to true to enable BGP
+  cluster_asn: 65001  # ASN for the K3s cluster
+  router_asn: 64512   # ASN for the upstream router
+  peers:
+    - ip: "192.168.10.1"   # IP of the upstream router
+      asn: 64512           # ASN of the upstream router
+
 # LoadBalancer IP Pool (Optional)
 # - Define a custom pool of IPs for LoadBalancer services if using BGP.
 # - If empty, Cilium will dynamically allocate IPs.
