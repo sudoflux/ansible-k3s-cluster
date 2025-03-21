@@ -1,0 +1,14 @@
+---
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Ensure common packages are installed
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - curl
+    - vim
+    - git
+    - jq
