@@ -39,3 +39,36 @@ ingress_controller:
   service:
     annotations:
       io.cilium/lb-ipam-ips: "192.168.10.240"  # Assign IP from LoadBalancer pool
+
+# Storage settings
+storage_classes:
+  longhorn:
+    enabled: true
+    default: true
+    default_path: "/mnt/longhorn"
+
+  nfs:
+    enabled: true
+    server: "192.168.10.100"
+    path: "/mnt/storage"
+    default: false
+
+  local-path:
+    enabled: true
+    default: false
+
+# ARR stack
+deploy_media_stack: false  # Set to true to install Plex, Radarr, Sonarr, etc.
+
+# Per-Service Toggle (More Customization)
+deploy_plex: false
+deploy_sonarr: false
+deploy_radarr: false
+deploy_bazarr: false
+deploy_prowlarr: false
+deploy_lidarr: false
+deploy_overseerr: false
+deploy_sabnzbd: false
+
+# Base domain for media services i.e.. homelab.com = plex.homelab.com etc.
+domain_name: "yourdomain.com"

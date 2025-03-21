@@ -1,12 +1,14 @@
 # Ansible K3s Cluster
 
-🚀 **One-button deployment of a K3s cluster with Cilium networking, using user-defined variables.**
+🚀 **One-button deployment of a K3s cluster with Cilium networking, storage, and optional media services using user-defined variables.**
 
 ## Features
 
 - Deploys a minimal **K3s** cluster with user-defined master and worker nodes.
 - **Cilium** is installed by default for networking (BGP optional).
 - Uses **dynamic inventory generation** via Jinja2 (no need to manually edit inventory).
+- Supports **custom storage backends** (`Longhorn`, `NFS`, `Local-Path`).
+- Optionally deploys **ARR Media Stack** (Plex, Sonarr, Radarr, etc.).
 - Fully customizable via **values.yml** and **cluster_config.yml**.
 - Designed for **homelabs** and small-scale setups.
 
@@ -36,7 +38,7 @@ workers:
 
 ### **2️⃣ Customize General Settings (`values.yml`)**
 
-Modify `values.yml` to configure SSH access, the K3s version, and networking settings.
+Modify `values.yml` to configure SSH access, the K3s version, networking settings, and optional features.
 
 #### Example:
 ```yaml
@@ -44,6 +46,19 @@ ssh_user: josh
 k3s_version: v1.29.1+k3s1
 cilium_enabled: true
 cilium_bgp_enabled: false
+
+# ARR stack
+deploy_media_stack: false  # Set to true to install Plex, Radarr, Sonarr, etc.
+
+# Per-Service Toggle (More Customization)
+deploy_plex: false
+deploy_sonarr: false
+deploy_radarr: false
+deploy_bazarr: false
+deploy_prowlarr: false
+deploy_lidarr: false
+deploy_overseerr: false
+deploy_sabnzbd: false
 ```
 
 ---
@@ -103,24 +118,39 @@ storage_classes:
 ```
 🚨 Storage Rules:
 
-    Only one default storage class can be set (default: true).
-    NFS requires a server IP and path if enabled.
-    Longhorn auto-installs if enabled.
+    - Only one default storage class can be set (default: true).
+    - NFS requires a server IP and path if enabled.
+    - Longhorn auto-installs if enabled.
 
-🔥 Deploy Storage Before Cluster:
+💥 Deploy Storage Before Cluster:
 ```shell
 ansible-playbook -i inventory/generated_inventory.yml site.yml --tags storage
 ```
 
 ---
 
+## 📌 ARR Media Stack Configuration
+
+If enabled, this will install Plex, Radarr, Sonarr, and other media services.  
+Ensure the correct settings in `values.yml` before deployment.
+
+🚀 **To deploy the media stack:**
+```shell
+ansible-playbook -i inventory/generated_inventory.yml site.yml --tags media
+```
+
+---
+
 ### **✅ Final Summary**
 ✔ **Users can configure multiple storage backends**  
-✔ **Only one storage class can be default (validated)**  
-✔ **NFS storage will only deploy if properly set up**  
+✔ **ARR services deploy based on user preferences**  
+✔ **Cilium LB and Ingress are installed only when needed**  
+✔ **Fails gracefully if configurations are incorrect**  
 ✔ **Clear README instructions**  
 
 🚀 **Good to go? Or any extra features we need?**
+
+---
 
 ## **📌 Project Roadmap**
 
@@ -128,8 +158,11 @@ ansible-playbook -i inventory/generated_inventory.yml site.yml --tags storage
 - [x] **Basic K3s install (masters + workers)**
 - [x] **Default Cilium setup**
 - [x] **Dynamic inventory generation with Jinja2**
+- [x] **Cilium-based LoadBalancer & Ingress setup**
+- [x] **ARR Media Stack deployment toggle**
+- [x] **Storage backend configuration (Longhorn, NFS, Local)**
 
-### 🚧 In Progress / Planned
+### 🛠️ In Progress / Planned
 - [ ] **Support for static IP configuration**
 - [ ] **Improve inventory generation error handling**
 - [ ] **Add node labels & taints for customization**

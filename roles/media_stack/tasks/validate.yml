@@ -1,0 +1,5 @@
+- name: Set default domain name if not defined and Cilium is enabled
+  set_fact:
+    domain_name: "local.cluster"
+  when: cilium_enabled | bool and (domain_name is not defined or domain_name | length == 0)
+

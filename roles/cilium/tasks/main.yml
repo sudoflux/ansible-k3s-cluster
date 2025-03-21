@@ -46,3 +46,36 @@
   args:
     executable: /bin/bash
   when: cilium_enabled | default(false) | bool
+
+# LoadBalancer Configuration
+- name: Check if LoadBalancer IP Pool is defined
+  set_fact:
+    lb_pool_defined: "{{ lb_ip_pool is defined and lb_ip_pool.start is defined and lb_ip_pool.stop is defined }}"
+
+- name: Render LoadBalancer IP Pool YAML (if defined)
+  template:
+    src: "ip-pool.yaml.j2"
+    dest: "/tmp/ip-pool.yaml"
+  when: lb_pool_defined
+
+- name: Apply LoadBalancer IP Pool (if defined)
+  shell: kubectl apply -f /tmp/ip-pool.yaml
+  when: lb_pool_defined
+
+  # IngressController Configuration
+- name: Enable Cilium Ingress Controller
+  shell: |
+    kubectl apply -f - <<EOF
+    apiVersion: cilium.io/v2alpha1
+    kind: CiliumIngressController
+    metadata:
+      name: cilium-ingress
+    spec:
+      enabled: true
+      default: true
+      loadbalancerMode: shared
+      service:
+        annotations:
+          io.cilium/lb-ipam-ips: "{{ ingress_ip | default('192.168.1.240') }}"
+    EOF
+  when: cilium_enabled | default(false) | bool

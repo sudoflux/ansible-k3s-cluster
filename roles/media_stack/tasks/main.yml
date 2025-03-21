@@ -1,0 +1,35 @@
+---
+- name: Ensure Helm is installed
+  package:
+    name: helm
+    state: present
+
+- name: Create media namespace if not exists
+  shell: kubectl create namespace media --dry-run=client -o yaml | kubectl apply -f -
+
+- name: Define LoadBalancer annotation (only if Cilium is enabled)
+  set_fact:
+    lb_annotation: "service.annotations.io.cilium/lb-ipam-ips={{ media_lb_ip }}"
+  when: cilium_enabled | default(false) | bool and media_lb_ip is defined
+
+- name: Define LoadBalancer type based on Cilium
+  set_fact:
+    service_type: "{{ 'LoadBalancer' if cilium_enabled | default(false) | bool else 'ClusterIP' }}"
+
+- name: Deploy Media Services
+  loop:
+    - { name: "plex", enabled: "{{ deploy_plex }}" }
+    - { name: "sonarr", enabled: "{{ deploy_sonarr }}" }
+    - { name: "radarr", enabled: "{{ deploy_radarr }}" }
+    - { name: "bazarr", enabled: "{{ deploy_bazarr }}" }
+    - { name: "prowlarr", enabled: "{{ deploy_prowlarr }}" }
+    - { name: "lidarr", enabled: "{{ deploy_lidarr }}" }
+    - { name: "overseerr", enabled: "{{ deploy_overseerr }}" }
+    - { name: "sabnzbd", enabled: "{{ deploy_sabnzbd }}" }
+  shell: |
+    helm upgrade --install {{ item.name }} k8s-at-home/{{ item.name }} --namespace media \
+      --set service.type={{ service_type }} \
+      --set ingress.enabled=true \
+      --set ingress.hosts[0].host={{ item.name }}.{{ domain_name }} \
+      {% if cilium_enabled | default(false) | bool and media_lb_ip is defined %} --set {{ lb_annotation }} {% endif %}
+  when: deploy_media_stack | default(false) | bool and item.enabled | default(false) | bool
