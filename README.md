@@ -79,6 +79,49 @@ This playbook:
 
 ---
 
+## 📌 Storage Configuration
+
+You can mix multiple storage backends (`Longhorn`, `NFS`, `Local-Path`).  
+Define storage classes in `values.yml`:
+
+```yaml
+storage_classes:
+  longhorn:
+    enabled: true
+    default: true
+    default_path: "/mnt/longhorn"
+
+  nfs:
+    enabled: true
+    server: "192.168.1.100"
+    path: "/mnt/storage"
+    default: false
+
+  local-path:
+    enabled: true
+    default: false
+```
+🚨 Storage Rules:
+
+    Only one default storage class can be set (default: true).
+    NFS requires a server IP and path if enabled.
+    Longhorn auto-installs if enabled.
+
+🔥 Deploy Storage Before Cluster:
+```shell
+ansible-playbook -i inventory/generated_inventory.yml site.yml --tags storage
+```
+
+---
+
+### **✅ Final Summary**
+✔ **Users can configure multiple storage backends**  
+✔ **Only one storage class can be default (validated)**  
+✔ **NFS storage will only deploy if properly set up**  
+✔ **Clear README instructions**  
+
+🚀 **Good to go? Or any extra features we need?**
+
 ## **📌 Project Roadmap**
 
 ### ✅ Completed
