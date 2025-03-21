@@ -5,7 +5,25 @@
     dest: "/tmp/k3s_install.sh"
     mode: "0755"
 
-- name: Install K3s worker
-  shell: "/tmp/k3s_install.sh agent --server https://{{ hostvars['master1']['ansible_host'] }}:6443 --token {{ hostvars['master1']['k3s_token'] }}"
+- name: Install K3s worker with Cilium (if enabled)
+  shell: |
+    /tmp/k3s_install.sh agent \
+      --flannel-backend=none \
+      --disable-kube-proxy \
+      --disable servicelb \
+      --disable-network-policy \
+      --disable traefik \
+      --server https://{{ hostvars['master1']['ansible_host'] }}:6443 \
+      --token {{ hostvars['master1']['k3s_token'] }}
   args:
     creates: /etc/rancher/k3s/k3s.yaml
+  when: cilium_enabled | default(false) | bool
+
+- name: Install K3s worker with default networking (if Cilium is disabled)
+  shell: |
+    /tmp/k3s_install.sh agent \
+      --server https://{{ hostvars['master1']['ansible_host'] }}:6443 \
+      --token {{ hostvars['master1']['k3s_token'] }}
+  args:
+    creates: /etc/rancher/k3s/k3s.yaml
+  when: not (cilium_enabled | default(false) | bool)
