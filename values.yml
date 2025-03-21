@@ -10,5 +10,7 @@ k3s_version: "v1.29.1+k3s1"
 cilium_enabled: true  # Set to false to disable Cilium
 cilium_bgp_enabled: false  # Set to true to enable BGP if supported
 
-# Additional networking options (for future use)
-api_server_ip: ""  # Set manually if using an external load balancer (this will be needed under the conditions - multiple master nodes with cilium enabled)
+# API Server Load Balancer
+# - If using multiple masters, set this to an external Load Balancer IP.
+# - If empty, the first master node's IP will be used.
+api_server_ip: ""
